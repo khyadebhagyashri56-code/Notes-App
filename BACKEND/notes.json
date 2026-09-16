@@ -1,0 +1,62 @@
+[
+  {
+    "title": "Shopping List",
+    "content": "Milk, Bread, Eggs, Butter"
+  },
+  {
+    "title": "Java Revision",
+    "content": "Arrays, Strings, HashMap, Binary Search"
+  },
+  {
+    "title": "React Notes",
+    "content": "Learn useState, useEffect, Props, Routing"
+  },
+  {
+    "title": "DBMS",
+    "content": "Normalization, Joins, Transactions"
+  },
+  {
+    "title": "Operating System",
+    "content": "Process, Thread, Deadlock"
+  },
+  {
+    "title": "Computer Networks",
+    "content": "OSI Model, TCP/IP, HTTP"
+  },
+  {
+    "title": "DSA Practice",
+    "content": "Solve 2 LeetCode questions today"
+  },
+  {
+    "title": "Interview Preparation",
+    "content": "Revise Java OOP concepts"
+  },
+  {
+    "title": "Project Ideas",
+    "content": "Notes App, Expense Tracker, Chat App"
+  },
+  {
+    "title": "Placement Goal",
+    "content": "Target 10 LPA product-based company"
+  },
+  {
+    "title": "Exam Schedule",
+    "content": "Java - Monday, DBMS - Wednesday"
+  },
+  {
+    "title": "Books",
+    "content": "Atomic Habits, Clean Code"
+  },
+  {
+    "title": "Workout",
+    "content": "30 min running and push-ups"
+  },
+  {
+    "title": "Travel",
+    "content": "Visit Mahabaleshwar next month"
+  },
+  {
+    "title": "Birthday Reminder",
+    "content": "Buy gift for friend"
+  }
+]
