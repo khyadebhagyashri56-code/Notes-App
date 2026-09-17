@@ -1,5 +1,12 @@
 import { useState, useEffect } from "react";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  useLocation,
+  Navigate,
+} from "react-router-dom";
+
 import Navbar from "./Components/Navbar.jsx";
 import SideBar from "./Components/SideBar.jsx";
 import HomePage from "./Pages/HomePage.jsx";
@@ -15,6 +22,27 @@ import SharedNote from "./Pages/SharedNote.jsx";
 import RecentlyViewed from "./Pages/RecentlyViewed.jsx";
 import NoteView from "./Pages/NotesView.jsx";
 
+// ===============================
+// LOGIN CHECK
+// ===============================
+function isLoggedIn() {
+  return !!localStorage.getItem("token");
+}
+
+// ===============================
+// PROTECTED ROUTE
+// ===============================
+function ProtectedRoute({ children }) {
+  if (!isLoggedIn()) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return children;
+}
+
+// ===============================
+// LAYOUT
+// ===============================
 function Layout() {
   const location = useLocation();
 
@@ -22,6 +50,7 @@ function Layout() {
   const [active, setActive] = useState("Notes");
   const [search, setSearch] = useState("");
   const [toast, setToast] = useState(null);
+
   const [darkMode, setDarkMode] = useState(() => {
     return localStorage.getItem("theme") === "dark";
   });
@@ -41,7 +70,7 @@ function Layout() {
   }, [location.pathname]);
 
   const isAuthPage =
-    location.pathname === "/signup" || location.pathname == "/login";
+    location.pathname === "/signup" || location.pathname === "/login";
 
   useEffect(() => {
     if (darkMode) {
@@ -62,6 +91,7 @@ function Layout() {
           onClose={() => setToast(null)}
         />
       )}
+
       {!isAuthPage && (
         <Navbar
           open={open}
@@ -80,61 +110,162 @@ function Layout() {
 
         <main className="min-w-0 flex-1 w-full">
           <Routes>
+            {/* ===============================
+                LOGIN / SIGNUP
+            =============================== */}
+
+            <Route path="/signup" element={<SignUp />} />
+
+            <Route path="/login" element={<Login />} />
+
+            {/* ===============================
+                HOME / NOTES
+            =============================== */}
+
+            <Route
+              path="/"
+              element={
+                <ProtectedRoute>
+                  <HomePage
+                    active={active}
+                    search={search}
+                    setToast={setToast}
+                    darkMode={darkMode}
+                  />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* ===============================
+                ARCHIVE
+            =============================== */}
+
             <Route
               path="/archive"
               element={
-                <HomePage
-                  active="Archive"
-                  search={search}
-                  setToast={setToast}
-                  darkMode={darkMode}
-                />
+                <ProtectedRoute>
+                  <HomePage
+                    active="Archive"
+                    search={search}
+                    setToast={setToast}
+                    darkMode={darkMode}
+                  />
+                </ProtectedRoute>
               }
             />
+
+            {/* ===============================
+                TRASH
+            =============================== */}
 
             <Route
               path="/trash"
               element={
-                <HomePage
-                  active="Trash"
-                  search={search}
-                  setToast={setToast}
-                  darkMode={darkMode}
-                />
-              }
-            />
-            <Route
-              path="/"
-              element={
-                <HomePage
-                  active={active}
-                  search={search}
-                  setToast={setToast}
-                  darkMode={darkMode}
-                />
+                <ProtectedRoute>
+                  <HomePage
+                    active="Trash"
+                    search={search}
+                    setToast={setToast}
+                    darkMode={darkMode}
+                  />
+                </ProtectedRoute>
               }
             />
 
-            <Route path="/signup" element={<SignUp />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/edit-note/:id" element={<EditNote />} />
+            {/* ===============================
+                EDIT NOTE
+            =============================== */}
+
+            <Route
+              path="/edit-note/:id"
+              element={
+                <ProtectedRoute>
+                  <EditNote />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* ===============================
+                REMINDER
+            =============================== */}
+
             <Route
               path="/reminder"
-              element={<Reminder setToast={setToast} />}
+              element={
+                <ProtectedRoute>
+                  <Reminder setToast={setToast} />
+                </ProtectedRoute>
+              }
             />
-            <Route path="/labels" element={<Labels />} />
-            <Route path="/change-password" element={<ChangePassword />} />
+
+            {/* ===============================
+                LABELS
+            =============================== */}
+
+            <Route
+              path="/labels"
+              element={
+                <ProtectedRoute>
+                  <Labels />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* ===============================
+                CHANGE PASSWORD
+            =============================== */}
+
+            <Route
+              path="/change-password"
+              element={
+                <ProtectedRoute>
+                  <ChangePassword />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* ===============================
+                SHARED NOTE
+            =============================== */}
+
             <Route
               path="/shared/:shareId"
               element={<SharedNote darkMode={darkMode} />}
             />
+
+            {/* ===============================
+                RECENTLY VIEWED
+            =============================== */}
+
             <Route
               path="/recently-viewed"
-              element={<RecentlyViewed darkMode={darkMode} />}
+              element={
+                <ProtectedRoute>
+                  <RecentlyViewed darkMode={darkMode} />
+                </ProtectedRoute>
+              }
             />
+
+            {/* ===============================
+                VIEW NOTE
+            =============================== */}
+
             <Route
               path="/view-note/:id"
-              element={<NoteView darkMode={darkMode} />}
+              element={
+                <ProtectedRoute>
+                  <NoteView darkMode={darkMode} />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* ===============================
+                UNKNOWN ROUTE
+            =============================== */}
+
+            <Route
+              path="*"
+              element={<Navigate to={isLoggedIn() ? "/" : "/login"} replace />}
             />
           </Routes>
         </main>
@@ -143,13 +274,15 @@ function Layout() {
   );
 }
 
+// ===============================
+// APP
+// ===============================
+
 function App() {
   return (
-    <>
-      <BrowserRouter>
-        <Layout />
-      </BrowserRouter>
-    </>
+    <BrowserRouter>
+      <Layout />
+    </BrowserRouter>
   );
 }
 
