@@ -530,7 +530,7 @@ function NotesList({
 
                   <button
                     onClick={() => {
-                      navigate(`/view-note/${note._id}`);
+                      navigate(`/edit-note/${note._id}`);
                       setOpenMenuId(null);
                     }}
                     className="
@@ -578,46 +578,101 @@ function NotesList({
 
                     {showColorPickerId === note._id && (
                       <div
+                        onClick={(e) => e.stopPropagation()}
                         className="
-                          absolute right-[calc(100%+8px)] top-0 z-200
-                          w-60Set Reminder
+                          absolute right-[calc(100%+10px)] top-1/2 z-200
+                          w-56 -translate-y-1/2
                           rounded-2xl
-                          border
-                          border-gray-200
+                          border border-gray-200
                           bg-white
                           p-4
-                          shadow-2xl
-
-                          dark:border-[#3c4043]
+                          shadow-[0_14px_35px_rgba(0,0,0,0.16)]
+                          ring-1 ring-black/5
+                          dark:border-[#45474a]
                           dark:bg-[#303134]
+                          dark:ring-white/5
                         "
                       >
-                        <p className="mb-3 text-xs font-medium text-gray-500 dark:text-gray-400">
-                          Choose note color
-                        </p>
+                        {/* COLOR PICKER HEADER */}
+                        <div className="mb-4">
+                          <div className="flex items-center justify-between">
+                            <p className="text-sm font-semibold text-gray-800 dark:text-gray-100">
+                              Choose note color
+                            </p>
 
+                            <span className="text-[11px] font-medium text-gray-400 dark:text-gray-500">
+                              8 colors
+                            </span>
+                          </div>
+
+                          <p className="mt-1 text-[11px] text-gray-400 dark:text-gray-500">
+                            Give this note a new look
+                          </p>
+                        </div>
+
+                        {/* COLOR GRID */}
                         <div className="grid grid-cols-4 gap-3">
-                          {colors.map((color) => (
-                            <button
-                              key={color}
-                              onClick={() => changeNoteColor(note._id, color)}
-                              className="
-                                flex h-9 w-9 items-center justify-center
-                                rounded-full
-                                border-2
-                                border-gray-300
-                                transition
-                                hover:scale-110
-                              "
-                              style={{
-                                backgroundColor: color,
-                              }}
-                            >
-                              {note.color === color && (
-                                <Check size={16} className="text-gray-700" />
-                              )}
-                            </button>
-                          ))}
+                          {colors.map((color) => {
+                            const isSelected = note.color === color;
+
+                            return (
+                              <button
+                                key={color}
+                                onClick={() => changeNoteColor(note._id, color)}
+                                aria-label={`Choose ${color} note color`}
+                                title={color}
+                                className={`
+                                  group relative flex h-10 w-10 items-center justify-center
+                                  rounded-full
+                                  border-2
+                                  transition-all duration-200
+                                  hover:scale-110
+                                  active:scale-95
+                                  ${
+                                    isSelected
+                                      ? "border-white shadow-md ring-2 ring-blue-500 ring-offset-2 dark:border-[#303134] dark:ring-blue-400 dark:ring-offset-[#303134]"
+                                      : "border-black/10 shadow-sm hover:shadow-md dark:border-white/10"
+                                  }
+                                `}
+                                style={{ backgroundColor: color }}
+                              >
+                                {isSelected && (
+                                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-black/15">
+                                    <Check
+                                      size={13}
+                                      strokeWidth={3}
+                                      className="text-gray-700 dark:text-gray-900"
+                                    />
+                                  </span>
+                                )}
+
+                                <span
+                                  className="
+                                    pointer-events-none absolute inset-0
+                                    rounded-full opacity-0
+                                    ring-2 ring-black/10
+                                    transition-opacity
+                                    group-hover:opacity-100
+                                    dark:ring-white/20
+                                  "
+                                />
+                              </button>
+                            );
+                          })}
+                        </div>
+
+                        {/* SELECTED COLOR */}
+                        <div className="mt-4 flex items-center gap-2 border-t border-gray-100 pt-3 dark:border-[#45474a]">
+                          <span
+                            className="h-3.5 w-3.5 rounded-full border border-black/10 shadow-sm dark:border-white/10"
+                            style={{
+                              backgroundColor: note.color || "#ffffff",
+                            }}
+                          />
+
+                          <span className="text-[11px] font-medium text-gray-500 dark:text-gray-400">
+                            Current color
+                          </span>
                         </div>
                       </div>
                     )}

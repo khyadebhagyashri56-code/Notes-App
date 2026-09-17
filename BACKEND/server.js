@@ -112,13 +112,6 @@ app.delete("/api/labels/:id", async (req, res) => {
   }
 });
 
-app.get("/", async (req, res) => {
-  const note = await Note.create({
-    title: req.body.title,
-    content: req.body.content,
-  });
-  res.json(note);
-});
 
 app.post("/api/auth/signup", async (req, res) => {
   try {

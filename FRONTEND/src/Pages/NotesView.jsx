@@ -6,7 +6,6 @@ import {
   Pin,
   Star,
   Check,
-  X,
   Clock3,
   Archive,
   Trash2,
@@ -24,9 +23,6 @@ function NoteView({ darkMode }) {
   const [note, setNote] = useState(null);
   const [loading, setLoading] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
   const [showColorPicker, setShowColorPicker] = useState(false);
 
   useEffect(() => {
@@ -44,8 +40,6 @@ function NoteView({ darkMode }) {
 
         if (response.ok) {
           setNote(data);
-          setTitle(data.title || "");
-          setContent(data.content || "");
         } else {
           console.error(data.message);
         }
@@ -56,12 +50,9 @@ function NoteView({ darkMode }) {
       }
     };
 
-    if (id) {
-      fetchNote();
-    }
+    if (id) fetchNote();
   }, [id]);
 
-  // Mark note as viewed
   useEffect(() => {
     const markAsViewed = async () => {
       try {
@@ -78,9 +69,7 @@ function NoteView({ darkMode }) {
       }
     };
 
-    if (id) {
-      markAsViewed();
-    }
+    if (id) markAsViewed();
   }, [id]);
 
   const formatDateTime = (date) => {
@@ -95,41 +84,6 @@ function NoteView({ darkMode }) {
     });
   };
 
-  const handleSave = async () => {
-    try {
-      const token = localStorage.getItem("token");
-
-      const response = await fetch(`http://localhost:5000/api/notes/${id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          title,
-          content,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setNote(data);
-        setIsEditing(false);
-      } else {
-        console.error(data.message);
-      }
-    } catch (error) {
-      console.error("Error updating note:", error);
-    }
-  };
-
-  const handleCancel = () => {
-    setTitle(note?.title || "");
-    setContent(note?.content || "");
-    setIsEditing(false);
-  };
-
   const changeNoteColor = async (color) => {
     try {
       const token = localStorage.getItem("token");
@@ -140,9 +94,7 @@ function NoteView({ darkMode }) {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          color,
-        }),
+        body: JSON.stringify({ color }),
       });
 
       const data = await response.json();
@@ -194,7 +146,6 @@ function NoteView({ darkMode }) {
       }`}
     >
       <div className="max-w-4xl mx-auto">
-        {/* TOP BAR */}
         <div className="flex items-center justify-between mb-6">
           <button
             onClick={() => navigate(-1)}
@@ -208,7 +159,6 @@ function NoteView({ darkMode }) {
           </button>
 
           <div className="flex items-center gap-2 relative">
-            {/* PIN */}
             {note.isPinned && (
               <div
                 className={`p-2.5 rounded-xl ${
@@ -222,7 +172,6 @@ function NoteView({ darkMode }) {
               </div>
             )}
 
-            {/* FAVORITE */}
             <button
               className={`p-2.5 rounded-xl transition ${
                 darkMode
@@ -233,7 +182,6 @@ function NoteView({ darkMode }) {
               <Star size={20} />
             </button>
 
-            {/* THREE DOTS */}
             <button
               onClick={() => setMenuOpen(!menuOpen)}
               className={`p-2.5 rounded-xl transition ${
@@ -245,7 +193,6 @@ function NoteView({ darkMode }) {
               <MoreVertical size={21} />
             </button>
 
-            {/* MENU */}
             {menuOpen && (
               <div
                 className={`absolute right-0 top-12 w-52 rounded-2xl shadow-xl border p-2 z-50 ${
@@ -255,10 +202,7 @@ function NoteView({ darkMode }) {
                 }`}
               >
                 <button
-                  onClick={() => {
-                    setIsEditing(true);
-                    setMenuOpen(false);
-                  }}
+                  onClick={() => navigate(`/edit-note/${note._id}`)}
                   className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm ${
                     darkMode
                       ? "hover:bg-gray-800 text-gray-200"
@@ -383,7 +327,6 @@ function NoteView({ darkMode }) {
           </div>
         </div>
 
-        {/* NOTE CARD */}
         <div
           style={{
             backgroundColor:
@@ -393,54 +336,21 @@ function NoteView({ darkMode }) {
             darkMode ? "border-gray-700" : "border-gray-200"
           } shadow-sm overflow-hidden`}
         >
-          {/* NOTE CONTENT */}
           <div className="px-6 py-7 md:px-10 md:py-9">
-            {isEditing ? (
-              <>
-                <input
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder="Note title"
-                  className={`w-full text-3xl md:text-4xl font-bold bg-transparent outline-none mb-6 ${
-                    darkMode
-                      ? "text-white placeholder-gray-600"
-                      : "text-gray-900 placeholder-gray-300"
-                  }`}
-                />
+            <h1
+              className={`text-3xl md:text-4xl font-bold tracking-tight mb-7 ${textColor}`}
+            >
+              {note.title || "Untitled Note"}
+            </h1>
 
-                <textarea
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                  placeholder="Write your note..."
-                  rows={12}
-                  className={`w-full resize-none bg-transparent outline-none leading-7 text-[16px] ${
-                    darkMode
-                      ? "text-gray-300 placeholder-gray-600"
-                      : "text-gray-700 placeholder-gray-400"
-                  }`}
-                />
-              </>
-            ) : (
-              <>
-                {/* TITLE */}
-                <h1
-                  className={`text-3xl md:text-4xl font-bold tracking-tight mb-7 ${textColor}`}
-                >
-                  {note.title || "Untitled Note"}
-                </h1>
+            <div
+              className={`whitespace-pre-wrap leading-8 text-[16px] md:text-[17px] ${
+                darkMode ? "text-gray-300" : "text-gray-700"
+              }`}
+            >
+              {note.content || "No content in this note."}
+            </div>
 
-                {/* CONTENT */}
-                <div
-                  className={`whitespace-pre-wrap leading-8 text-[16px] md:text-[17px] ${
-                    darkMode ? "text-gray-300" : "text-gray-700"
-                  }`}
-                >
-                  {note.content || "No content in this note."}
-                </div>
-              </>
-            )}
-
-            {/* LABELS */}
             {note.labels && note.labels.length > 0 && (
               <div className="flex flex-wrap gap-2 mt-8">
                 {note.labels.map((label) => (
@@ -459,7 +369,6 @@ function NoteView({ darkMode }) {
               </div>
             )}
 
-            {/* CHECKLIST */}
             {note.checklist && note.checklist.length > 0 && (
               <div
                 className={`mt-8 p-4 rounded-2xl ${
@@ -470,7 +379,6 @@ function NoteView({ darkMode }) {
                   <span className={`font-medium text-sm ${textColor}`}>
                     Checklist
                   </span>
-
                   <span className={`text-xs ${secondaryText}`}>
                     {note.checklist.filter((item) => item.completed).length} /{" "}
                     {note.checklist.length} completed
@@ -496,9 +404,9 @@ function NoteView({ darkMode }) {
                       </div>
 
                       <span
-                        className={`${
+                        className={
                           item.completed ? "line-through opacity-50" : textColor
-                        }`}
+                        }
                       >
                         {item.text}
                       </span>
@@ -509,7 +417,6 @@ function NoteView({ darkMode }) {
             )}
           </div>
 
-          {/* METADATA */}
           <div
             className={`border-t px-6 py-5 md:px-10 ${
               darkMode ? "border-gray-700" : "border-gray-100"
@@ -522,7 +429,6 @@ function NoteView({ darkMode }) {
                 >
                   Created
                 </p>
-
                 <p className={`text-sm ${textColor}`}>
                   {formatDateTime(note.createdAt)}
                 </p>
@@ -534,45 +440,14 @@ function NoteView({ darkMode }) {
                 >
                   Updated
                 </p>
-
                 <p className={`text-sm ${textColor}`}>
                   {formatDateTime(note.updatedAt)}
                 </p>
               </div>
             </div>
           </div>
-
-          {/* EDIT BUTTONS */}
-          {isEditing && (
-            <div
-              className={`border-t px-6 py-4 md:px-10 flex justify-end gap-3 ${
-                darkMode ? "border-gray-700" : "border-gray-100"
-              }`}
-            >
-              <button
-                onClick={handleCancel}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium ${
-                  darkMode
-                    ? "bg-gray-800 text-gray-300 hover:bg-gray-700"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
-              >
-                <X size={16} />
-                Cancel
-              </button>
-
-              <button
-                onClick={handleSave}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition"
-              >
-                <Check size={16} />
-                OK
-              </button>
-            </div>
-          )}
         </div>
 
-        {/* LAST VIEWED */}
         {note.lastViewedAt && (
           <div
             className={`flex items-center justify-center gap-2 mt-5 text-xs ${secondaryText}`}
